@@ -56,7 +56,3 @@ class SoyBest(Particle):
     @property
     def name(self) -> str:
         return f"soy:best '{self.x_exp}' '{self.y_exp}' '{self.z_exp}' {self.life} {self.rand} '{self.color_exp}'"
-
-
-bp = SoyBest('0', '0', '0', 10, 0, '65535')
-print(bp.command)
