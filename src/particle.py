@@ -44,6 +44,7 @@ class SoyBest(Particle):
             color_exp: str,
             **kwargs,
     ):
+        
         # 为 SoyBest 实例设置一个默认的 name
         super().__init__(name='soy:best', **kwargs)
         self.x_exp = x_exp
