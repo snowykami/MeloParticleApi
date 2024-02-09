@@ -100,3 +100,19 @@ class Color:
         result_b = max(self.b - other.b, 0)
         result_a = max(self.a - other.a, 0)
         return Color((result_a, result_r, result_g, result_b))
+
+
+class CColor:
+    # Constants Color
+    WHITE = Color("#FFFFFF")
+    BLACK = Color("#000000")
+    RED = Color("#FF0000")
+    GREEN = Color("#00FF00")
+    BLUE = Color("#0000FF")
+    YELLOW = Color("#FFFF00")
+    CYAN = Color("#00FFFF")
+    MAGENTA = Color("#FF00FF")
+    ORANGE = Color("#FFA500")
+    PURPLE = Color("#800080")
+    GRAY = Color("#808080")
+    LIGHT_GRAY = Color("#D3D3D3")

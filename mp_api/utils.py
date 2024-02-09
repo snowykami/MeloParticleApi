@@ -4,7 +4,7 @@ from typing import Callable
 import sympy
 
 
-def conv2math_expr(func: Callable, var: str = 't') -> str:
+def func2math_exp(func: Callable | str, var: str = 't') -> str:
     """Convert a Python function to a mathematical expression.
 
     Args:
@@ -14,5 +14,9 @@ def conv2math_expr(func: Callable, var: str = 't') -> str:
     Returns:
         str: Mathematical expression
     """
-    t = sympy.symbols(var)
-    return func(t)
+
+    if isinstance(func, str):
+        return func
+    else:
+        t = sympy.symbols(var)
+        return func(t)
