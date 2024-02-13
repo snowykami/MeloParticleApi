@@ -1,3 +1,6 @@
 .idea
+particle
+midi
+gcc
 config.yml
 main.py

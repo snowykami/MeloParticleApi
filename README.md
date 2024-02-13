@@ -7,17 +7,19 @@
 ```python
 from mp_api import Save, ColorLifeParticle, ParticleEvent, CColor, MCFunction
 
+# 加载一个存档
 world = Save(
     path="path/to/world",
     datapack='datapack_name',
     namespace='namespace',
 )
 
-# 创建一个粒子
+# 实例化一个粒子
 p = ColorLifeParticle(
     color=CColor.WHITE
 )
 
+# 创建一个粒子事件
 pe = ParticleEvent(
     particle=p,
     pos=(0, 0, 0),
@@ -25,6 +27,7 @@ pe = ParticleEvent(
     count=1,
 )
 
+# 创建一个mcfunction用于存放事件
 func = MCFunction(
     name='test',
 )

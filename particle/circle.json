@@ -1,0 +1,6 @@
+{
+    "base": "best",
+    "name": {
+        "x_exp": "sin(t/10)"
+    }
+}

@@ -4,12 +4,12 @@ from .utils import *
 
 
 class BaseParticle(object):
-    def __init__(self):
-        pass
+    def __init__(self, name: str = ''):
+        self._name = name
 
     @property
     def name(self):
-        return "soy:base_particle"
+        return self._name
 
 
 class BestParticle(BaseParticle):
@@ -20,7 +20,7 @@ class BestParticle(BaseParticle):
             z_exp: T_Exp = lambda t: 0,
             life: int = 1,
             rand: int = 1,
-            color: T_Exp = str(CColor.WHITE.get_int())
+            color: T_Exp | T_Color = str(CColor.WHITE.get_int())
     ):
         super().__init__()
         self.x_exp = func2math_exp(x_exp)
@@ -29,7 +29,10 @@ class BestParticle(BaseParticle):
         self.life = life
         assert rand > 0, "rand must be greater than 0"
         self.rand = rand
-        self.color = func2math_exp(color)
+        if isinstance(color, Callable):
+            self.color = func2math_exp(color)
+        else:
+            self.color = Color(color).get_int()
 
     @property
     def name(self):

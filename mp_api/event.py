@@ -31,6 +31,19 @@ class ExecuteEvent(BaseEvent):
         return f"execute {' '.join(self.sub_commands)} run {self.run_event.command}"
 
 
+class FunctionEvent(BaseEvent):
+    def __init__(self,
+                 function: 'MCFunction',
+                 **kwargs
+                 ):
+        super().__init__(**kwargs)
+        self.function = function
+
+    @property
+    def command(self):
+        return f"function {self.function.namespace}:{self.function.name}"
+
+
 class ParticleEvent(BaseEvent):
     def __init__(self,
                  particle: BaseParticle,
@@ -60,12 +73,33 @@ class ParticleEvent(BaseEvent):
         return f"particle {self.particle.name} {self.pos[0]} {self.pos[1]} {self.pos[2]} {self.delta[0]} {self.delta[1]} {self.delta[2]} {self.speed} {self.count} {self.force} {self.player}"
 
 
+class ScheduleEvent(BaseEvent):
+    def __init__(self,
+                 function: 'MCFunction',
+                 time: int,
+                 unit: str = 't',
+                 # append | replace
+                 append: str = ''
+                 ):
+        super().__init__()
+        self.function = function
+        self.time = time
+        self.unit = unit
+        self.append = append
+
+    @property
+    def command(self):
+        return f"schedule function {self.function.namespace}:{self.function.name} {self.time}{self.unit} {self.append}"
+
+
 class MCFunction(object):
     def __init__(self,
                  name: str,
                  commands: List[str] = None,
+                 namespace: str = None,
                  ):
         self.name = name
+        self.namespace = namespace
         if commands is None:
             self.commands = []
 
