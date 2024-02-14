@@ -37,6 +37,7 @@ def delta(*args) -> Tuple[str,]:
 
     return tuple(str_list)
 
+
 class Enum:
     @staticmethod
     def get_color_block(index: int) -> str:
@@ -46,56 +47,24 @@ class Enum:
         """
         color_blocks = [
                 "black_concrete",
-                "black_glazed_terracotta",
-                "black_terracotta",
                 "blue_concrete",
-                "blue_glazed_terracotta",
-                "blue_terracotta",
                 "brown_concrete",
-                "brown_glazed_terracotta",
-                "brown_terracotta",
                 "cyan_concrete",
-                "cyan_glazed_terracotta",
-                "cyan_terracotta",
                 "gray_concrete",
-                "gray_glazed_terracotta",
-                "gray_terracotta",
                 "green_concrete",
-                "green_glazed_terracotta",
-                "green_terracotta",
                 "light_blue_concrete",
-                "light_blue_glazed_terracotta",
-                "light_blue_terracotta",
                 "light_gray_concrete",
-                "light_gray_glazed_terracotta",
-                "light_gray_terracotta",
                 "lime_concrete",
-                "lime_glazed_terracotta",
-                "lime_terracotta",
                 "magenta_concrete",
-                "magenta_glazed_terracotta",
-                "magenta_terracotta",
                 "orange_concrete",
-                "orange_glazed_terracotta",
-                "orange_terracotta",
                 "pink_concrete",
-                "pink_glazed_terracotta",
-                "pink_terracotta",
                 "purple_concrete",
-                "purple_glazed_terracotta",
-                "purple_terracotta",
                 "red_concrete",
-                "red_glazed_terracotta",
-                "red_terracotta",
-                "terracotta",
                 "white_concrete",
-                "white_glazed_terracotta",
-                "white_terracotta",
                 "yellow_concrete",
-                "yellow_glazed_terracotta",
-                "yellow_terracotta",
+
         ]
-        return color_blocks[index]
+        return color_blocks[index % len(color_blocks)]
 
     @staticmethod
     def get_color_falling_block(index: int) -> str:
@@ -121,30 +90,32 @@ class Enum:
                 "white_concrete_powder",
                 "yellow_concrete_powder",
         ]
-        return color_blocks[index]
+        return color_blocks[index % len(color_blocks)]
 
     @staticmethod
     def get_color(index: int) -> Color:
-        """Enum color
+        """Enum color by concrete
         :param index:
         :return: #FFFFFF
         """
         colors = [
-                Color("#FFFF6E"),
-                Color("#FF6E6E"),
-                Color("#FF6EFF"),
-                Color("#6E6EFF"),
-                Color("#6EFF6E"),
-                Color("#6EFFFF"),
-                Color("#6E6E6E"),
-                Color("#FFFFFF"),
-                Color("#FF6E00"),
-                Color("#FFD800"),
-                Color("#FF00FF"),
-                Color("#00FFFF"),
-                Color("#00FF00"),
-                Color("#0000FF"),
-                Color("#FF0000"),
-                Color("#000000"),
+                Color('#FFA500'),
+                Color('#FFFF00'),
+                Color('#00FFFF'),
+                Color('#FF0000'),
+                Color('#D3D3D3'),
+                Color('#000000'),
+                Color('#0000FF'),
+                Color('#A52A2A'),
+                Color('#808080'),
+                Color('#008000'),
+                Color('#ADD8E6'),
+
+                Color('#00FF00'),
+                Color('#FF00FF'),
+                Color('#FFC0CB'),
+                Color('#800080'),
+                Color('#FFFFFF'),
+
         ]
-        return colors[index]
+        return colors[index % len(colors)]

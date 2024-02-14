@@ -87,6 +87,6 @@ class ResourcePack(object):
             emissive_properties = os.path.join(self.path, 'assets', self.namespace, 'optifine/emissive.properties')
             if not os.path.exists(emissive_properties):
                 os.makedirs(os.path.dirname(emissive_properties), exist_ok=True)
-            with open(emissive_properties, 'a') as f:
-                f.write('suffix.emissive=_e\n')
+                with open(emissive_properties, 'a') as f:
+                    f.write('suffix.emissive=_e\n')
             image.save(file_path.replace('.png', '_e.png'))

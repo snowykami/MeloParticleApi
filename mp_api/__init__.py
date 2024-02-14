@@ -3,6 +3,7 @@ import sys
 from .config import *
 from .draw import *
 from .event import *
+from .model import *
 from .mp_typing import *
 from .particle import *
 from .save import *

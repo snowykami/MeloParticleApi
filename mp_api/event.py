@@ -92,6 +92,27 @@ class ScheduleEvent(BaseEvent):
         return f"schedule function {self.function.namespace}:{self.function.name} {self.time}{self.unit} {self.append}"
 
 
+class SetBlockEvent(BaseEvent):
+    def __init__(
+            self,
+            pos: T_Pos = ('~', '~', '~'),
+            block: str = 'minecraft:air',
+            mode: str = 'replace',
+            # destroy | keep | replace
+            **kwargs
+    ):
+        super().__init__(**kwargs)
+        self.pos = pos
+        self.block = block
+        if ':' not in block:
+            self.block = f"minecraft:{block}"
+        self.mode = mode
+
+    @property
+    def command(self):
+        return f"setblock {int(self.pos[0])} {int(self.pos[1])} {int(self.pos[2])} {self.block} {self.mode}"
+
+
 class MCFunction(object):
     def __init__(self,
                  name: str,
@@ -106,8 +127,8 @@ class MCFunction(object):
     def add_command(self, command: str):
         self.commands.append(command)
 
-    def add_event(self, event: BaseEvent):
-        self.commands.append(event.command)
+    def add_event(self, *event: BaseEvent):
+        self.commands.extend([e.command for e in event])
 
     def __str__(self):
         return f"<MCFunction {self.name}>"
