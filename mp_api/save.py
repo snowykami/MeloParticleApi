@@ -42,8 +42,9 @@ class Save(object):
     def output(self):
         for mcfunction in self.function_list:
             func_path = f'{self.path}/datapacks/{self.datapack}/data/{self.namespace}/functions'
-            if not os.path.exists(func_path):
-                os.makedirs(func_path, exist_ok=True)
+            function_path = f'{self.path}/datapacks/{self.datapack}/data/{self.namespace}/functions/{mcfunction.name}.mcfunction'
+            if not os.path.exists(os.path.dirname(function_path)):
+                os.makedirs(os.path.dirname(function_path), exist_ok=True)
             with open(file=f'{self.path}/datapacks/{self.datapack}/data/{self.namespace}/functions/{mcfunction.name}.mcfunction',
                       mode='w',
                       encoding='utf-8') as f:

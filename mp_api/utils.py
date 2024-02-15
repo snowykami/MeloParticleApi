@@ -104,15 +104,16 @@ class Enum:
                 Color('#00FFFF'),
                 Color('#FF0000'),
                 Color('#D3D3D3'),
+                Color('#FF00FF'),
+
                 Color('#000000'),
                 Color('#0000FF'),
                 Color('#A52A2A'),
                 Color('#808080'),
                 Color('#008000'),
                 Color('#ADD8E6'),
-
                 Color('#00FF00'),
-                Color('#FF00FF'),
+
                 Color('#FFC0CB'),
                 Color('#800080'),
                 Color('#FFFFFF'),

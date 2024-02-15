@@ -1,9 +1,11 @@
-from typing import Tuple
-from .mp_typing import T_RGB, T_ARGB, T_Color
+from typing import Callable, Tuple
+from .mp_typing import T_Num, T_RGB, T_ARGB, T_Color
 
 
 class Color:
-    def __init__(self, color: T_Color | 'Color'):
+    def __init__(self,
+                 color: T_Color | 'Color'
+                 ):
         """
         :param color: 16777215+(FF,16) | (#)(FF)FFFFFF | (255, 255, 255) | (255, 255, 255, 255)
         """
@@ -40,7 +42,9 @@ class Color:
         self.g = self.argb[2]
         self.b = self.argb[3]
 
-    def get_int(self, alpha: bool = False) -> int:
+    def get_int(self,
+                alpha: bool = False
+                ) -> int:
         """获取整数颜色
         :param alpha: 是否包含alpha通道，默认否
         :return: 整数颜色
@@ -50,7 +54,10 @@ class Color:
         else:
             return (self.r << 16) + (self.g << 8) + self.b
 
-    def get_hex(self, alpha: bool = True, hashtag: bool = True) -> str:
+    def get_hex(self,
+                alpha: bool = True,
+                hashtag: bool = True
+                ) -> str:
         """获取十六进制颜色
         :param alpha: 是否包含alpha通道，默认是
         :param hashtag: 是否包含#
@@ -61,7 +68,9 @@ class Color:
         else:
             return ("#" if hashtag else "") + hex(self.r)[2:].rjust(2, '0') + hex(self.g)[2:].rjust(2, '0') + hex(self.b)[2:].rjust(2, '0')
 
-    def get_tuple(self, alpha: bool = True) -> T_RGB | T_ARGB:
+    def get_tuple(self,
+                  alpha: bool = True
+                  ) -> T_RGB | T_ARGB:
         """获取颜色元组
         :param alpha: 是否包含alpha通道，默认是
         :return: 颜色数组
@@ -71,30 +80,37 @@ class Color:
         else:
             return self.argb[1:]
 
-    def gradient_interpolation(self, other: 'Color', p: float) -> 'Color':
+    def gradient_interpolation(self,
+                               other: 'Color',
+                               p: float
+                               ) -> 'Color':
         """使用线性颜色插值计算渐变色
         :param other: 另一个颜色
         :param p: 插值系数
         :return: 插值颜色
         """
         return Color((
-            int(self.a + (other.a - self.a) * p),
-            int(self.r + (other.r - self.r) * p),
-            int(self.g + (other.g - self.g) * p),
-            int(self.b + (other.b - self.b) * p)
+                int(self.a + (other.a - self.a) * p),
+                int(self.r + (other.r - self.r) * p),
+                int(self.g + (other.g - self.g) * p),
+                int(self.b + (other.b - self.b) * p)
         ))
 
     def __str__(self):
         return f'Color {self.get_hex}'
 
-    def __add__(self, other: 'Color'):
+    def __add__(self,
+                other: 'Color'
+                ):
         result_r = min(self.r + other.r, 255)
         result_g = min(self.g + other.g, 255)
         result_b = min(self.b + other.b, 255)
         result_a = min(self.a + other.a, 255)
         return Color((result_a, result_r, result_g, result_b))
 
-    def __sub__(self, other: 'Color'):
+    def __sub__(self,
+                other: 'Color'
+                ):
         result_r = max(self.r - other.r, 0)
         result_g = max(self.g - other.g, 0)
         result_b = max(self.b - other.b, 0)
@@ -116,3 +132,5 @@ class CColor:
     PURPLE = Color("#800080")
     GRAY = Color("#808080")
     LIGHT_GRAY = Color("#D3D3D3")
+
+

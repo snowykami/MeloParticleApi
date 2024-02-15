@@ -33,7 +33,7 @@ func = MCFunction(
     name='test',
 )
 
-func.add_event(pe)
+func.add_events(pe)
 world.add_function(func)
 ```
 进入游戏后，使用`/function namespace:test`即可看到粒子效果
