@@ -3,6 +3,7 @@ from typing import Union
 from .particle import BaseParticle
 from .mp_typing import *
 
+
 class BaseEvent(object):
     def __init__(self,
                  time: int = 0
@@ -87,6 +88,9 @@ class ParticleEvent(BaseEvent):
         self.count = count
         self.force = force
         self.player = player
+        # 限制pos, delta小数位
+        self.pos = tuple([f'{p:.5f}' if isinstance(p, float) else p for p in self.pos])
+        self.delta = tuple([f'{p:.5f}' if isinstance(p, float) else p for p in self.delta])
 
     def __str__(self):
         return "<ParticleEvent>"

@@ -39,7 +39,7 @@ class Save(object):
     def game_resourcepack(self):
         return os.path.join(self.game_root, 'resourcepacks', self.resourcepack)
 
-    def output(self):
+    def output(self, enable_log: bool = True):
         event_count, function_count = 0, 0
         for mcfunction in self.function_list:
             function_count += 1

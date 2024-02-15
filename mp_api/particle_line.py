@@ -1,7 +1,7 @@
 import math
 from typing import Callable, Tuple
 
-from mp_api import Arc2, T_Num
+from mp_api import Arc2, T_Num, line2by2p
 
 
 class ParticleLine:
@@ -11,6 +11,7 @@ class ParticleLine:
                  x_fun: Callable[[T_Num], T_Num],
                  y_fun: Callable[[T_Num], T_Num],
                  z_fun: Callable[[T_Num], T_Num],
+                 length: T_Num = 0
                  ):
         """
         :param start_time: 起始时间
@@ -24,6 +25,7 @@ class ParticleLine:
         self.x_fun = x_fun
         self.y_fun = y_fun
         self.z_fun = z_fun
+        self.length = length
 
     def get_pos(self,
                 p: T_Num
@@ -49,17 +51,29 @@ class ParticleLine:
         return (x2 - x1) / (2 * delta), (y2 - y1) / (2 * delta), (z2 - z1) / (2 * delta)
 
 
-def arc22pl(arc: Arc2) -> ParticleLine:
+def arc22pl(arc: Arc2, y_fun: Callable) -> ParticleLine:
     """
     Get the line of the arc
+    :param y_fun:
     :param arc:
     :return:
     """
     # start_time与起始点的x相同,end_time与终点的x相同
+    if arc.center is None:
+        return ParticleLine(
+            start_time=arc.start.x,
+            end_time=arc.end.x,
+            x_fun=lambda p: arc.start.x + (arc.end.x - arc.start.x) * p,
+            # 抛物线
+            y_fun=lambda t: y_fun(t),
+            z_fun=lambda p: arc.start.y + (arc.end.y - arc.start.y) * p,
+            length=arc.start.get_distance(arc.end)
+        )
     return ParticleLine(
-        start_time=arc.center.x + arc.radius * math.cos(arc.start),
-        end_time=arc.center.x + arc.radius * math.cos(arc.end),
-        x_fun=lambda t: arc.center.x + arc.radius * math.cos(t),
-        y_fun=lambda t: 0,
-        z_fun=lambda t: arc.center.y + arc.radius * math.sin(t),
+        start_time=arc.start.x,
+        end_time=arc.end.x,
+        x_fun=lambda p: arc.center.x + arc.radius * math.cos(math.atan2(arc.start.y - arc.center.y, arc.start.x - arc.center.x) + arc.get_delta_angle() * p),
+        y_fun=y_fun,
+        z_fun=lambda p: arc.center.y + arc.radius * math.sin(math.atan2(arc.start.y - arc.center.y, arc.start.x - arc.center.x) + arc.get_delta_angle() * p),
+        length=arc.length
     )

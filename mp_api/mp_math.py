@@ -35,6 +35,14 @@ class Point2:
         """
         return Vector2(p.x - self.x, p.y - self.y)
 
+    def get_distance(self, point: 'Point2') -> T_Num:
+        """
+        Get the distance of two points
+        :param point: another point
+        :return: distance
+        """
+        return ((self.x - point.x) ** 2 + (self.y - point.y) ** 2) ** 0.5
+
 
 class Point3:
     def __init__(self,
@@ -64,6 +72,9 @@ class Line2:
         self.a = a
         self.b = b
         self.c = c
+
+    def __str__(self):
+        return f"Line2({self.a}, {self.b}, {self.c})"
 
     def get_parallel_line(self,
                           point: 'Point2'
@@ -192,22 +203,20 @@ class Segment2:
 
 class Arc2:
     def __init__(self,
-                 center: Point2,
-                 radius: T_Num,
+                 center: Point2 | None,
                  start: Point2,
                  end: Point2,
                  direction: int = 1
                  ):
         """
 
-        :param center: 处理特殊情况
-        :param radius:
+        :param center: 处理特殊情况，如果为None则为直线
         :param start: 起点向量末端点
         :param end: 终点向量末端点
         :param direction: 正数为正角，负数为负角，0为零角，数值绝对值与方向无关
         """
         self.center = center
-        self.radius = radius
+        self.radius = center.get_vector2(start).length if center is not None else 0
         self.start = start
         self.end = end
         self.direction = direction
@@ -215,11 +224,9 @@ class Arc2:
         if self.direction != 0:
             self.direction = self.direction / abs(self.direction)
 
-    def get_pos(self, p: T_Num) -> Point2:
+    def get_delta_angle(self) -> T_Num:
         """
-        获取当前旋转进度的坐标
-        Get the position of the arc
-        :param p: 0-1
+        获取角度差，包含正负角
         :return:
         """
         v1 = self.center.get_vector2(self.start)
@@ -238,11 +245,57 @@ class Arc2:
         else:
             if delta_angle > 0:
                 delta_angle -= 2 * math.pi
+        return delta_angle
+
+    def get_pos(self, p: T_Num) -> Point2:
+        """
+        获取当前旋转进度的坐标
+        Get the position of the arc
+        :param p: 0-1
+        :return:
+        """
+
+        # 计算两个角度之间的差值
+        v1 = self.center.get_vector2(self.start)
+        angle1 = math.atan2(v1.y, v1.x)
+        delta_angle = self.get_delta_angle()
+
+        # 根据旋转方向调整差值
+        if self.direction > 0:
+            if delta_angle < 0:
+                delta_angle += 2 * math.pi
+        else:
+            if delta_angle > 0:
+                delta_angle -= 2 * math.pi
 
         return Point2(
             self.center.x + self.radius * math.cos(angle1 + delta_angle * p),
             self.center.y + self.radius * math.sin(angle1 + delta_angle * p)
         )
+
+    @property
+    def length(self) -> T_Num:
+        """
+        获取弧长
+        Get the length of the arc
+        :return:
+        """
+        v1 = self.center.get_vector2(self.start)
+        # 要计算正负角
+        angle1 = math.atan2(v1.y, v1.x)
+
+        # 计算两个角度之间的差值
+        delta_angle = self.get_delta_angle()
+
+        # 根据旋转方向调整差值
+        if self.direction > 0:
+            if delta_angle < 0:
+                delta_angle += 2 * math.pi
+        else:
+            if delta_angle > 0:
+                delta_angle -= 2 * math.pi
+
+        return self.radius * abs(delta_angle)
 
     def get_tangent(self, p: T_Num) -> Line2:
         """
@@ -274,11 +327,7 @@ class Vector2:
         :param vector2: another vector
         :return: angle in radian
         """
-        if self.length == 0 or vector2.length == 0:
-            print(self, vector2)
-        cos = (self * vector2 / (self.length * vector2.length))
-
-        return math.cos(clamp(cos, -1, 1))
+        return math.acos(self * vector2 / (self.length * vector2.length))
 
     @property
     def length(self):
