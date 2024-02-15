@@ -24,10 +24,13 @@ class Point2:
         self.x = x
         self.y = y
 
+    def __str__(self):
+        return f"Point2({self.x}, {self.y})"
+
     def get_vector2(self, p: 'Point2') -> 'Vector2':
         """
         Get the vector of two points
-        :param p: 末端
+        :param p: 指向的点
         :return:
         """
         return Vector2(p.x - self.x, p.y - self.y)
@@ -47,6 +50,9 @@ class Point3:
     @property
     def point2mc(self):
         return Point2(self.x, self.z)
+
+    def __str__(self):
+        return f"Point3({self.x}, {self.y}, {self.z})"
 
 
 class Line2:
@@ -79,6 +85,8 @@ class Line2:
         :param line: another line
         :return: intersection point
         """
+        if self.a * line.b == self.b * line.a:
+            raise ValueError('No intersection')
         d = self.a * line.b - self.b * line.a
         return Point2(
             (self.b * line.c - self.c * line.b) / d,
@@ -186,16 +194,16 @@ class Arc2:
     def __init__(self,
                  center: Point2,
                  radius: T_Num,
-                 start: T_Num,
-                 end: T_Num,
+                 start: Point2,
+                 end: Point2,
                  direction: int = 1
                  ):
         """
 
         :param center: 处理特殊情况
         :param radius:
-        :param start: 弧度制
-        :param end:
+        :param start: 起点向量末端点
+        :param end: 终点向量末端点
         :param direction: 正数为正角，负数为负角，0为零角，数值绝对值与方向无关
         """
         self.center = center
@@ -209,16 +217,31 @@ class Arc2:
 
     def get_pos(self, p: T_Num) -> Point2:
         """
-        获取当前进度的坐标
+        获取当前旋转进度的坐标
         Get the position of the arc
         :param p: 0-1
         :return:
         """
+        v1 = self.center.get_vector2(self.start)
+        v2 = self.center.get_vector2(self.end)
         # 要计算正负角
-        angle = self.start + (self.end - self.start) * p * self.direction
+        angle1 = math.atan2(v1.y, v1.x)
+        angle2 = math.atan2(v2.y, v2.x)
+
+        # 计算两个角度之间的差值
+        delta_angle = angle2 - angle1
+
+        # 根据旋转方向调整差值
+        if self.direction > 0:
+            if delta_angle < 0:
+                delta_angle += 2 * math.pi
+        else:
+            if delta_angle > 0:
+                delta_angle -= 2 * math.pi
+
         return Point2(
-            self.center.x + self.radius * math.cos(angle),
-            self.center.y + self.radius * math.sin(angle)
+            self.center.x + self.radius * math.cos(angle1 + delta_angle * p),
+            self.center.y + self.radius * math.sin(angle1 + delta_angle * p)
         )
 
     def get_tangent(self, p: T_Num) -> Line2:
@@ -242,13 +265,20 @@ class Vector2:
         self.x = x
         self.y = y
 
-    def get_angle(self, v: 'Vector2') -> T_Num:
+    def __str__(self):
+        return f"Vector2({self.x}, {self.y})"
+
+    def get_angle(self, vector2: 'Vector2') -> T_Num:
         """
         Get the angle of two vectors
-        :param v: another vector
+        :param vector2: another vector
         :return: angle in radian
         """
-        return math.acos((self.x * v.x + self.y * v.y) / (self.length * v.length))
+        if self.length == 0 or vector2.length == 0:
+            print(self, vector2)
+        cos = (self * vector2 / (self.length * vector2.length))
+
+        return math.cos(clamp(cos, -1, 1))
 
     @property
     def length(self):
@@ -264,8 +294,11 @@ class Vector2:
     def __sub__(self, other: 'Vector2'):
         return Vector2(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, other: T_Num):
-        return Vector2(self.x * other, self.y * other)
+    def __mul__(self, other: T_Num | type('Vector2')):
+        if isinstance(other, Vector2):
+            return self.x * other.x + self.y * other.y
+        else:
+            return Vector2(self.x * other, self.y * other)
 
     def __truediv__(self, other: T_Num):
         return Vector2(self.x / other, self.y / other)
@@ -297,3 +330,7 @@ def line2by2p(p1: Point2, p2: Point2) -> Line2:
         b=p1.x - p2.x,
         c=p2.x * p1.y - p1.x * p2.y
     )
+
+
+def clamp(_x: T_Num, _min: T_Num, _max: T_Num) -> T_Num:
+    return _min if _x < _min else _max if _x > _max else _x

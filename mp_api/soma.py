@@ -1,7 +1,7 @@
 import math
 from typing import List, Tuple
 
-from mp_api import Arc2, Line2, Point2, Point3, Segment2, line2by2p
+from mp_api import Arc2, Line2, Point2, Point3, Segment2, Vector2, line2by2p
 from mp_api.particle_line import ParticleLine, arc22pl
 
 
@@ -59,59 +59,72 @@ class Style:
         """
         lines = []
         # 起始线
-        start_x = point_groups[0][0].x
-        zero_line = line2by2p(Point2(start_x, 0), Point2(start_x, 128))
         last_arc_list = []
+        # 制造假圆弧
+        for p in point_groups[0]:
+            cp = Point2(p.x-1, p.z)
+            sp = Point2(p.x-1, p.z-1)
+            ep = Point2(p.x, p.z)
+            last_arc_list.append(Arc2())
         for i, start_group, end_group in zip(range(len(point_groups[:-1])), point_groups[:-1], point_groups[1:]):
             start_num = len(start_group)
             end_num = len(end_group)
             connections = connect_points(start_num, end_num)
-            this_arc_list: List[Arc2] = []
+
+            this_arc_list: List[Arc2] = []  # 本次的Arc临时列表
             for conn in connections:
                 # 两点连接域
-                start_point: Point3 = start_group[conn[0]]
-                end_point: Point3 = end_group[conn[1]]
-                sp2 = start_point.point2mc
-                ep2 = end_point.point2mc
-                path_seg = Segment2(sp2, ep2)  # 位移线段
+                startp2: Point2 = start_group[conn[0]].point2mc
+                endp2: Point2 = end_group[conn[1]].point2mc
+                path_seg = Segment2(startp2, endp2)  # 位移线段
+                last_arc = last_arc_list[conn[0]]
+
+                croter_seg = Segment2(last_arc.center, last_arc.get_pos(1.0))  # 末向量/穿心线段/判定线段(建议用向量夹角判断，不要用点在线上，会出现精度错误)
+
+
                 # 计算圆弧
-                if i == 0:
-
-                    # 圆弧中心
-                    cp2 = path_seg.perpendicular_bisector.get_intersection(zero_line)
-
-                    # 方向
-                    dire = (sp2.x - ep2.x)
-
-                    # 计算夹角
-                else:
-                    last_arc = last_arc_list[conn[0]]
-                    # 圆弧中心 上一个Arc的center与上一个Arc末端点的连线与当前path_seg的中垂线的交点
-                    croter_line = Segment2(last_arc.center, last_arc.get_pos(1.0)).line
-                    cp2 = croter_line.get_intersection(path_seg.perpendicular_bisector)
-
-                    # 方向 以起始音符为起点，终止音符和上一个圆心为终点，构建两个向量，夹角为钝角则较上次反，锐角则同上次，直角特殊处理
-                    deter_seg = Segment2(last_arc.center, last_arc.get_pos(1.0))  # 末角向量/判定线
-
-                    if path_seg.perpendicular_bisector.is_parallel(deter_seg.line):
-                        # 特殊处理，这种情况极其少见，但是不排除
-                        dire = 0
-                    else:
-                        v1 = sp2.get_vector2(last_arc.center)
-                        v2 = sp2.get_vector2(ep2)
-                        if v1.get_angle(v2) > math.pi / 2:
-                            dire = -1 * last_arc.direction
-                        else:
-                            dire = last_arc.direction
-
-                sv2, ev2 = cp2.get_vector2(sp2), cp2.get_vector2(ep2)  # 起始和结束点对于圆心的向量
-                radian = sv2.get_angle(ev2)  # 弧度
-                radius = Segment2(cp2, sp2).length  # 半径
-
-                arc2 = Arc2(cp2, radius, 0, radian, dire)   # 生成Arc2
-                this_arc_list.append(arc2)
-                pl = arc22pl(arc2)  # 生成ParticleLine
-                lines.append(pl)
+                # if i == 0:
+                #
+                #     # 圆弧中心
+                #     cp2 = path_seg.perpendicular_bisector.get_intersection(zero_line)
+                #
+                #     # 方向
+                #     dire = (sp2.x - ep2.x)
+                #
+                #     # 计算夹角
+                # else:
+                #     last_arc = last_arc_list[conn[0]]
+                #     # 圆弧中心 上一个Arc的center与上一个Arc末端点的连线与当前path_seg的中垂线的交点
+                #     croter_line = Segment2(last_arc.center, last_arc.get_pos(1.0)).line
+                #     # 判断平行
+                #     if croter_line.is_parallel(path_seg.perpendicular_bisector):
+                #         # 特殊处理，这种情况极其少见，但是不排除
+                #         cp2 = path_seg.center
+                #     else:
+                #         cp2 = croter_line.get_intersection(path_seg.perpendicular_bisector)
+                #
+                #     # 方向 以起始音符为起点，终止音符和上一个圆心为终点，构建两个向量，夹角为钝角则较上次反，锐角则同上次，直角特殊处理
+                #     deter_seg = Segment2(last_arc.center, last_arc.get_pos(1.0))  # 末角向量/判定线
+                #
+                #     if path_seg.perpendicular_bisector.is_parallel(deter_seg.line):
+                #         # 特殊处理，这种情况极其少见，但是不排除
+                #         dire = 0
+                #     else:
+                #         v1 = sp2.get_vector2(last_arc.center)
+                #         v2 = sp2.get_vector2(ep2)
+                #         if v1.get_angle(v2) > math.pi / 2:
+                #             dire = -1 * last_arc.direction
+                #         else:
+                #             dire = last_arc.direction
+                # sv2, ev2 = cp2.get_vector2(sp2), cp2.get_vector2(ep2)  # 起始和结束点对于圆心的向量
+                # try:
+                #     radian = sv2.get_angle(ev2)  # 弧度
+                # except ZeroDivisionError:
+                #     radian = 10
+                # radius = Segment2(cp2, sp2).length  # 半径
+                # arc2 = Arc2(cp2, radius, sv2.get_angle(Vector2(1, 0)), ev2.get_angle(Vector2(1, 0)), dire)   # 生成Arc2
+                # this_arc_list.append(arc2)
+                # pl = arc22pl(arc2)  # 生成ParticleLine
+                # lines.append(pl)
             last_arc_list = this_arc_list
-
         return lines

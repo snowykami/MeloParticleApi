@@ -50,7 +50,6 @@ class FillEvent(BaseEvent):
 
     @property
     def command(self):
-        print(self.start, self.end, self.block, self.mode)
         # int
         return f"fill {int(self.start[0])} {int(self.start[1])} {int(self.start[2])} {int(self.end[0])} {int(self.end[1])} {int(self.end[2])} {self.block} {self.mode}"
 
@@ -102,6 +101,7 @@ class ScheduleEvent(BaseEvent):
                  function: Union['MCFunction', str],
                  time: int,
                  unit: str = 't',
+                 clear: bool = False,
                  # append | replace
                  append: str = ''
                  ):
@@ -110,6 +110,7 @@ class ScheduleEvent(BaseEvent):
         self.time = time
         self.unit = unit
         self.append = append
+        self.clear = clear
 
     @property
     def command(self):
@@ -119,7 +120,10 @@ class ScheduleEvent(BaseEvent):
             function_name = self.function
             if ':' not in function_name:
                 function_name = f"minecraft:{function_name}"
-        return f"schedule function {function_name} {self.time}{self.unit} {self.append}"
+        if self.clear:
+            return f"schedule clear {function_name}"
+        else:
+            return f"schedule function {function_name} {self.time}{self.unit} {self.append}"
 
 
 class SetBlockEvent(BaseEvent):

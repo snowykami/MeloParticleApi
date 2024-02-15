@@ -40,8 +40,10 @@ class Save(object):
         return os.path.join(self.game_root, 'resourcepacks', self.resourcepack)
 
     def output(self):
+        event_count, function_count = 0, 0
         for mcfunction in self.function_list:
-            func_path = f'{self.path}/datapacks/{self.datapack}/data/{self.namespace}/functions'
+            function_count += 1
+            event_count += len(mcfunction.commands)
             function_path = f'{self.path}/datapacks/{self.datapack}/data/{self.namespace}/functions/{mcfunction.name}.mcfunction'
             if not os.path.exists(os.path.dirname(function_path)):
                 os.makedirs(os.path.dirname(function_path), exist_ok=True)
@@ -49,7 +51,7 @@ class Save(object):
                       mode='w',
                       encoding='utf-8') as f:
                 f.write('\n'.join(mcfunction.commands))
-        print('Output complete')
+        print('Output complete: functions:', function_count, 'events:', event_count)
 
     def __del__(self):
         self.output()
