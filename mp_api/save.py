@@ -1,6 +1,10 @@
 import os
-from typing import List
+import time
 
+from . import config
+from concurrent.futures import ThreadPoolExecutor
+from typing import List
+from tqdm import tqdm
 from PIL import Image
 
 from .event import MCFunction
@@ -15,6 +19,7 @@ class Save(object):
                  ):
         if not os.path.exists(os.path.join(path, 'level.dat')):
             raise FileNotFoundError('level.dat not found')
+        self.time_start = time.time()
 
         self.path = path
         self.datapack = datapack
@@ -39,19 +44,22 @@ class Save(object):
     def game_resourcepack(self):
         return os.path.join(self.game_root, 'resourcepacks', self.resourcepack)
 
-    def output(self, enable_log: bool = True):
+    def output(self, num_threads: int = config.max_thread):
         event_count, function_count = 0, 0
-        for mcfunction in self.function_list:
+
+        def process_function(mcfunction):
+            nonlocal event_count, function_count
             function_count += 1
             event_count += len(mcfunction.commands)
             function_path = f'{self.path}/datapacks/{self.datapack}/data/{self.namespace}/functions/{mcfunction.name}.mcfunction'
             if not os.path.exists(os.path.dirname(function_path)):
                 os.makedirs(os.path.dirname(function_path), exist_ok=True)
-            with open(file=f'{self.path}/datapacks/{self.datapack}/data/{self.namespace}/functions/{mcfunction.name}.mcfunction',
-                      mode='w',
-                      encoding='utf-8') as f:
+            with open(file=function_path, mode='w', encoding='utf-8') as f:
                 f.write('\n'.join(mcfunction.commands))
-        print('Output complete: functions:', function_count, 'events:', event_count)
+
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            list(tqdm(executor.map(process_function, self.function_list), total=len(self.function_list), desc='mcfunction output', colour='blue', ncols=config.max_ncols))
+        print('Output complete: functions:', function_count, 'events:', event_count, 'time:', round(time.time() - self.time_start, 2), 'sec')
 
     def __del__(self):
         self.output()

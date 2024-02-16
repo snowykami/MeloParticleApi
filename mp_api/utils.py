@@ -1,41 +1,10 @@
 import math
 import random
-from typing import Callable, Tuple
+from typing import Any, Callable, Tuple
 
 import sympy
 
-from mp_api import Color
-
-
-def func2math_exp(func: Callable | str,
-                  var: str = 't'
-                  ) -> str:
-    """Convert a Python function to a mathematical expression.
-
-    Args:
-        func: Python function
-        var: Variable name
-
-    Returns:
-        str: Mathematical expression
-    """
-
-    if isinstance(func, str):
-        return func
-    else:
-        t = sympy.symbols(var)
-        return func(t)
-
-
-def delta(*args) -> Tuple[str,]:
-    """Convert a list of minecraft pos to a list of delta pos.
-    """
-    place = 6
-    str_list = []
-    for x in args:
-        str_list.append(f'~{x:.5f}')
-
-    return tuple(str_list)
+from .draw import Color
 
 
 class Enum:
@@ -120,3 +89,119 @@ class Enum:
 
         ]
         return colors[index % len(colors)]
+
+
+def func2math_exp(func: Callable | str,
+                  var: str = 't'
+                  ) -> str:
+    """Convert a Python function to a mathematical expression.
+
+    Args:
+        func: Python function
+        var: Variable name
+
+    Returns:
+        str: Mathematical expression
+    """
+    if isinstance(func, int) or isinstance(func, float):
+        return str(func)
+    elif isinstance(func, str):
+        return func
+    else:
+        t = sympy.symbols(var)
+        return func(t)
+
+
+def delta(*args) -> Tuple[str,]:
+    """Convert a list of minecraft pos to a list of delta pos. such as ~1 ~1 ~1
+    """
+    place = 6
+    str_list = []
+    for x in args:
+        str_list.append(f'~{x:.5f}')
+
+    return tuple(str_list)
+
+
+def mp_clamp(value: Any, min_value: Any, max_value: Any) -> str:
+    """mp_clamp
+    :param value:
+    :param min_value:
+    :param max_value:
+    :return:
+    """
+    return f'clamp({value},{min_value},{max_value})'
+
+
+def mp_min(a, b) -> str:
+    """mp_min
+    :param a:
+    :param b:
+    :return:
+    """
+    return f'min({a},{b})'
+
+
+def mp_max(a, b) -> str:
+    """mp_max
+    :param a:
+    :param b:
+    :return:
+    """
+    return f'max({a},{b})'
+
+
+def mp_if(condition: str, if_true: Any, if_false: Any) -> str:
+    """mp_if
+    :param condition:
+    :param if_true:
+    :param if_false:
+    :return:
+    """
+    return f'if({condition},{if_true},{if_false})'
+
+
+def mp_deg(x: Any) -> str:
+    """mp_degrees
+    :param x:
+    :return:
+    """
+    return f'deg({x})'
+
+
+def mp_radian(x: Any) -> str:
+    """mp_radian
+    :param x:
+    :return:
+    """
+    return f'rad({x})'
+
+def mp_and(a, b) -> str:
+    """mp_and
+    :param a:
+    :param b:
+    :return:
+    """
+    return f'and({a},{b})'
+
+def mp_or(a, b) -> str:
+    """mp_or
+    :param a:
+    :param b:
+    :return:
+    """
+    return f'or({a},{b})'
+def mp_sin(x: Any) -> str:
+    """mp_sin
+    :param x:
+    :return:
+    """
+    return f'sin({x})'
+
+
+def mp_cos(x: Any) -> str:
+    """mp_cos
+    :param x:
+    :return:
+    """
+    return f'cos({x})'

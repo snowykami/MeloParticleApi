@@ -1,16 +1,17 @@
-from typing import Callable, Tuple
-from .mp_typing import T_Num, T_RGB, T_ARGB, T_Color
+from typing import Tuple
 
 
 class Color:
-    def __init__(self,
-                 color: T_Color | 'Color'
-                 ):
+    def __init__(self, color: Tuple[int, int, int, int] | int | str | Tuple[int, int, int]):
+        """Initialize a Color object.
+
+        Args:
+            color (Tuple[int, int, int, int] | int | str | Tuple[int, int, int]):
+                - Tuple[int, int, int, int]: Represents ARGB values (alpha, red, green, blue).
+                - int: Represents an integer color value.
+                - str: Represents a hexadecimal color string.
+                - Tuple[int, int, int]: Represents RGB values (red, green, blue).
         """
-        :param color: 16777215+(FF,16) | (#)(FF)FFFFFF | (255, 255, 255) | (255, 255, 255, 255)
-        """
-        # 统一储存为Tuple[int a, int r, int g, int b]
-        # 判断argb和rgb，若没有a则a为255
         if isinstance(color, Color):
             self.argb = color.argb
         elif isinstance(color, int):
@@ -42,52 +43,58 @@ class Color:
         self.g = self.argb[2]
         self.b = self.argb[3]
 
-    def get_int(self,
-                alpha: bool = False
-                ) -> int:
-        """获取整数颜色
-        :param alpha: 是否包含alpha通道，默认否
-        :return: 整数颜色
+    def get_int(self, alpha: bool = False) -> int:
+        """Get the integer representation of the color.
+
+        Args:
+            alpha (bool, optional): Whether to include the alpha channel. Defaults to False.
+
+        Returns:
+            int: Integer representation of the color.
         """
         if alpha:
             return (self.a << 24) + (self.r << 16) + (self.g << 8) + self.b
         else:
             return (self.r << 16) + (self.g << 8) + self.b
 
-    def get_hex(self,
-                alpha: bool = True,
-                hashtag: bool = True
-                ) -> str:
-        """获取十六进制颜色
-        :param alpha: 是否包含alpha通道，默认是
-        :param hashtag: 是否包含#
-        :return: 十六进制颜色
+    def get_hex(self, alpha: bool = True, hashtag: bool = True) -> str:
+        """Get the hexadecimal representation of the color.
+
+        Args:
+            alpha (bool, optional): Whether to include the alpha channel. Defaults to True.
+            hashtag (bool, optional): Whether to include '#' in the hexadecimal string.
+
+        Returns:
+            str: Hexadecimal representation of the color.
         """
         if alpha:
             return ("#" if hashtag else "") + hex(self.a)[2:].rjust(2, '0') + hex(self.r)[2:].rjust(2, '0') + hex(self.g)[2:].rjust(2, '0') + hex(self.b)[2:].rjust(2, '0')
         else:
             return ("#" if hashtag else "") + hex(self.r)[2:].rjust(2, '0') + hex(self.g)[2:].rjust(2, '0') + hex(self.b)[2:].rjust(2, '0')
 
-    def get_tuple(self,
-                  alpha: bool = True
-                  ) -> T_RGB | T_ARGB:
-        """获取颜色元组
-        :param alpha: 是否包含alpha通道，默认是
-        :return: 颜色数组
+    def get_tuple(self, alpha: bool = True) -> Tuple[int, int, int] | Tuple[int, int, int, int]:
+        """Get the color values as a tuple.
+
+        Args:
+            alpha (bool, optional): Whether to include the alpha channel. Defaults to True.
+
+        Returns:
+            Tuple[int, int, int] | Tuple[int, int, int, int]: Color values as a tuple.
         """
         if alpha:
             return self.argb
         else:
             return self.argb[1:]
 
-    def gradient_interpolation(self,
-                               other: 'Color',
-                               p: float
-                               ) -> 'Color':
-        """使用线性颜色插值计算渐变色
-        :param other: 另一个颜色
-        :param p: 插值系数
-        :return: 插值颜色
+    def gradient_interpolation(self, other: 'Color', p: float) -> 'Color':
+        """Perform linear color interpolation for creating a gradient color.
+
+        Args:
+            other (Color): Another color for interpolation.
+            p (float): Interpolation coefficient in the range [0, 1].
+
+        Returns:
+            Color: Interpolated color.
         """
         return Color((
                 int(self.a + (other.a - self.a) * p),
@@ -96,21 +103,34 @@ class Color:
                 int(self.b + (other.b - self.b) * p)
         ))
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Return a string representation of the Color object."""
         return f'Color {self.get_hex}'
 
-    def __add__(self,
-                other: 'Color'
-                ):
+    def __add__(self, other: 'Color') -> 'Color':
+        """Perform addition of two colors.
+
+        Args:
+            other (Color): Another color to add.
+
+        Returns:
+            Color: Result of the addition.
+        """
         result_r = min(self.r + other.r, 255)
         result_g = min(self.g + other.g, 255)
         result_b = min(self.b + other.b, 255)
         result_a = min(self.a + other.a, 255)
         return Color((result_a, result_r, result_g, result_b))
 
-    def __sub__(self,
-                other: 'Color'
-                ):
+    def __sub__(self, other: 'Color') -> 'Color':
+        """Perform subtraction of two colors.
+
+        Args:
+            other (Color): Another color to subtract.
+
+        Returns:
+            Color: Result of the subtraction.
+        """
         result_r = max(self.r - other.r, 0)
         result_g = max(self.g - other.g, 0)
         result_b = max(self.b - other.b, 0)
@@ -132,5 +152,3 @@ class CColor:
     PURPLE = Color("#800080")
     GRAY = Color("#808080")
     LIGHT_GRAY = Color("#D3D3D3")
-
-

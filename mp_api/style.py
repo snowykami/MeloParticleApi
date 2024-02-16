@@ -1,8 +1,12 @@
 import math
+from typing import Callable, List, Tuple
+
 import numpy as np
-from typing import List, Tuple
-from mp_api import Arc2, Line2, Point2, Point3, Segment2, T_Num, Vector2, line2by2p
-from mp_api.particle_line import ParticleLine, arc22pl
+
+from . import func2math_exp
+from .mp_typing import T_Pos
+from .particle_line import ParticleLine, arc22pl
+from .mp_math import Arc2, Point2, Point3, Segment2, T_Num
 
 
 def points_2_group(points: List[Point3]) -> List[List[Point3]]:
@@ -63,10 +67,10 @@ class Soma:
         last_arc_list = []
         # 制造假圆弧
         for p in point_groups[0]:
-            cp = Point2(p.x - 1, p.z)
+            cp = Point2(p.x, p.z - 1)
             sp = Point2(p.x - 1, p.z - 1)
-            ep = Point2(p.x, p.z)
-            last_arc_list.append(Arc2(cp, sp, ep, 1))
+            ep = p.point2mc
+            last_arc_list.append(Arc2(cp, sp, ep, -1))
         for i, start_group, end_group in zip(range(len(point_groups[:-1])), point_groups[:-1], point_groups[1:]):
             start_num = len(start_group)
             end_num = len(end_group)
@@ -113,13 +117,40 @@ class Soma:
             last_arc_list = this_arc_list
         return lines
 
+    @staticmethod
+    def line_3d(point_groups: List[List[Point3]]) -> List[ParticleLine]:
+        """
+        计算3d线，返回带有ParticleLine的列表，建议自行添加起始点以便美观
+        :param point_groups: 处理后的点组
+        :return:
+        """
+        lines = []
+        for i, start_group, end_group in zip(range(len(point_groups[:-1])), point_groups[:-1], point_groups[1:]):
+            start_num = len(start_group)
+            end_num = len(end_group)
+            connections = connect_points(start_num, end_num)
+            for conn in connections:
+                startp3: Point3 = start_group[conn[0]]
+                endp3: Point3 = end_group[conn[1]]
+                particle_line = ParticleLine(
+                    start_time=startp3.x,
+                    end_time=endp3.x,
+                    x_fun=lambda p, sx=startp3.x, ex=endp3.x: sx + (ex - sx) * p,
+                    y_fun=lambda p, sy=startp3.y, ey=endp3.y: sy + (ey - sy) * p,
+                    z_fun=lambda p, sz=startp3.z, ez=endp3.z: sz + (ez - sz) * p,
+                    length=startp3.get_distance(endp3)
+                )
+                lines.append(particle_line)
+        return lines
+
 
 class Struct:
     # 这个类预定了一些形状样式的相对坐标列表
     @staticmethod
-    def cube(length: T_Num = 1, density: T_Num = 0.1, padding: str = 'p') -> List[Point3]:
+    def cube(length: T_Num = 1, density: T_Num = 0.1, padding: str = 'p', anchor: T_Pos = (0.5, 0.5, 0.5)) -> List[Point3]:
         """
         生成正方体
+        :param anchor: 锚点，0.5为中心，0为左/下/前，1为右/上/后
         :param length: 边长
         :param density: 密度
         :param padding: 填充参数 p：仅8个顶点，l：仅12条边缘，s：仅6个表面，b：全部体
@@ -134,31 +165,32 @@ class Struct:
                     # p 仅8个顶点
                     if padding == 'p':
                         if (i == 0 or i == num_per_side - 1) and (j == 0 or j == num_per_side - 1) and (k == 0 or k == num_per_side - 1):
-                            points.append(Point3(i * density - length / 2, j * density - length / 2, k * density - length / 2))
+                            points.append(Point3(i * density - length * anchor[0], j * density - length * anchor[1], k * density - length * anchor[2]))
                     # l 仅12条边缘
                     elif padding == 'l':
                         if (i == 0 or i == num_per_side - 1) and (j == 0 or j == num_per_side - 1) and (k == 0 or k == num_per_side - 1):
-                            points.append(Point3(i * density - length / 2, j * density - length / 2, k * density - length / 2))
+                            points.append(Point3(i * density - length * anchor[0], j * density - length * anchor[1], k * density - length * anchor[2]))
                         elif (i == 0 or i == num_per_side - 1) and (j == 0 or j == num_per_side - 1):
-                            points.append(Point3(i * density - length / 2, j * density - length / 2, k * density - length / 2))
+                            points.append(Point3(i * density - length * anchor[0], j * density - length * anchor[1], k * density - length * anchor[2]))
                         elif (i == 0 or i == num_per_side - 1) and (k == 0 or k == num_per_side - 1):
-                            points.append(Point3(i * density - length / 2, j * density - length / 2, k * density - length / 2))
+                            points.append(Point3(i * density - length * anchor[0], j * density - length * anchor[1], k * density - length * anchor[2]))
                         elif (j == 0 or j == num_per_side - 1) and (k == 0 or k == num_per_side - 1):
-                            points.append(Point3(i * density - length / 2, j * density - length / 2, k * density - length / 2))
+                            points.append(Point3(i * density - length * anchor[0], j * density - length * anchor[1], k * density - length * anchor[2]))
                     # s 仅6个表面
                     elif padding == 's':
                         if i == 0 or i == num_per_side - 1 or j == 0 or j == num_per_side - 1 or k == 0 or k == num_per_side - 1:
-                            points.append(Point3(i * density - length / 2, j * density - length / 2, k * density - length / 2))
+                            points.append(Point3(i * density - length * anchor[0], j * density - length * anchor[1], k * density - length * anchor[2]))
                     elif padding == 'b':
-                        points.append(Point3(i * density - length / 2, j * density - length / 2, k * density - length / 2))
+                        points.append(Point3(i * density - length * anchor[0], j * density - length * anchor[1], k * density - length * anchor[2]))
                     else:
                         raise ValueError('padding参数错误')
         return points
 
     @staticmethod
-    def sphere(radius: T_Num = 1, density: T_Num = 0.1, padding: str = 'p') -> List[Point3]:
+    def sphere(radius: T_Num = 1, density: T_Num = 0.1, padding: str = 'p', anchor: T_Pos = (0, 0, 0)) -> List[Point3]:
         """
         生成球体
+        :param anchor: 锚点，0.5为中心，0为左/下/前，1为右/上/后
         :param radius: 半径
         :param density: 密度
         :param padding: 填充参数 s：仅表面，b：全部体
@@ -171,10 +203,32 @@ class Struct:
                 for k in np.arange(-radius, radius + density, density):
                     if padding == 's':
                         if abs(i ** 2 + j ** 2 + k ** 2 - radius ** 2) < density:
-                            points.append(Point3(i, j, k))
+                            points.append(Point3(i - radius * anchor[0], j - radius * anchor[1], k - radius * anchor[2]))
                     elif padding == 'b':
                         if i ** 2 + j ** 2 + k ** 2 <= radius ** 2:
-                            points.append(Point3(i, j, k))
+                            points.append(Point3(i - radius * anchor[0], j - radius * anchor[1], k - radius * anchor[2]))
                     else:
                         raise ValueError('padding参数错误')
         return points
+
+
+class Animation:
+
+    @staticmethod
+    def diffusion(points: List[Point3], time: T_Num) -> List[Tuple[Callable, Callable, Callable]]:
+        """
+        扩散动画，从局部原点开始扩散指目标位置，用此公式给粒子的表达式配置后，粒子执行位置可以统一在原点
+        :param points: 点列表
+        :param time: 时间
+        :return: 每个点的公式列表，单位是t
+        """
+        new_funcs = []
+        for point in points:
+            new_funcs.append(
+                (
+                        lambda t: (t / time) * point.x,
+                        lambda t: (t / time) * point.y,
+                        lambda t: (t / time) * point.z
+                )
+            )
+        return new_funcs

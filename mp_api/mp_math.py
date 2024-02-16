@@ -1,15 +1,21 @@
 import math
+from typing import List
 
-from mp_api import T_Num
+import numpy as np
+from .mp_typing import T_Num
 
 
 class Note:
-    def __init__(self,
-                 start,
-                 end,
-                 note,
-                 velocity
-                 ):
+    def __init__(self, start, end, note, velocity):
+        """
+        Initialize a Note object.
+
+        Args:
+            start: Start time of the note.
+            end: End time of the note.
+            note: Note value.
+            velocity: Velocity of the note.
+        """
         self.start = start
         self.end = end
         self.note = note
@@ -17,10 +23,14 @@ class Note:
 
 
 class Point2:
-    def __init__(self,
-                 x,
-                 y
-                 ):
+    def __init__(self, x, y):
+        """
+        Initialize a 2D point.
+
+        Args:
+            x: X-coordinate.
+            y: Y-coordinate.
+        """
         self.x = x
         self.y = y
 
@@ -29,27 +39,39 @@ class Point2:
 
     def get_vector2(self, p: 'Point2') -> 'Vector2':
         """
-        Get the vector of two points
-        :param p: 指向的点
-        :return:
+        Get the vector from the current point to another point.
+
+        Args:
+            p: Another Point2 object.
+
+        Returns:
+            Vector2: Vector from the current point to the specified point.
         """
         return Vector2(p.x - self.x, p.y - self.y)
 
     def get_distance(self, point: 'Point2') -> T_Num:
         """
-        Get the distance of two points
-        :param point: another point
-        :return: distance
+        Get the Euclidean distance between two points.
+
+        Args:
+            point: Another Point2 object.
+
+        Returns:
+            T_Num: Euclidean distance between the points.
         """
         return ((self.x - point.x) ** 2 + (self.y - point.y) ** 2) ** 0.5
 
 
 class Point3:
-    def __init__(self,
-                 x,
-                 y,
-                 z
-                 ):
+    def __init__(self, x, y, z, t=0):
+        """
+        Initialize a 3D point.
+
+        Args:
+            x: X-coordinate.
+            y: Y-coordinate.
+            z: Z-coordinate.
+        """
         self.x = x
         self.y = y
         self.z = z
@@ -57,18 +79,40 @@ class Point3:
 
     @property
     def point2mc(self):
+        """
+        Convert the 3D point to a 2D point (ignoring the y-coordinate).
+
+        Returns:
+            Point2: 2D point representation of the 3D point.
+        """
         return Point2(self.x, self.z)
+
+    def get_distance(self, point: 'Point3') -> T_Num:
+        """
+        Get the Euclidean distance between two points.
+
+        Args:
+            point: Another Point3 object.
+
+        Returns:
+            T_Num: Euclidean distance between the points.
+        """
+        return ((self.x - point.x) ** 2 + (self.y - point.y) ** 2 + (self.z - point.z) ** 2) ** 0.5
 
     def __str__(self):
         return f"Point3({self.x}, {self.y}, {self.z})"
 
 
 class Line2:
-    def __init__(self,
-                 a,
-                 b,
-                 c
-                 ):
+    def __init__(self, a, b, c):
+        """
+        Initialize a 2D line.
+
+        Args:
+            a: Coefficient of x in the line equation.
+            b: Coefficient of y in the line equation.
+            c: Constant term in the line equation.
+        """
         self.a = a
         self.b = b
         self.c = c
@@ -76,169 +120,189 @@ class Line2:
     def __str__(self):
         return f"Line2({self.a}, {self.b}, {self.c})"
 
-    def get_parallel_line(self,
-                          point: 'Point2'
-                          ):
+    def get_parallel_line(self, point: 'Point2'):
         """
-        Get the parallel line of the line
-        :param point: outside point
-        :return:
+        Get the parallel line passing through a specified point.
+
+        Args:
+            point: A Point2 object.
+
+        Returns:
+            Line2: Parallel line passing through the specified point.
         """
-        return Line2(
-            a=self.a,
-            b=self.b,
-            c=self.a * point.x + self.b * point.y
-        )
+        return Line2(a=self.a, b=self.b, c=self.a * point.x + self.b * point.y)
 
     def get_intersection(self, line: 'Line2') -> Point2:
         """
-        Get the intersection of two lines
-        :param line: another line
-        :return: intersection point
+        Get the intersection point with another Line2 object.
+
+        Args:
+            line: Another Line2 object.
+
+        Returns:
+            Point2: Intersection point.
         """
         if self.a * line.b == self.b * line.a:
             raise ValueError('No intersection')
         d = self.a * line.b - self.b * line.a
-        return Point2(
-            (self.b * line.c - self.c * line.b) / d,
-            (self.c * line.a - self.a * line.c) / d
-        )
+        return Point2((self.b * line.c - self.c * line.b) / d, (self.c * line.a - self.a * line.c) / d)
 
-    def get_perpendicular_line(self,
-                               point: 'Point2'
-                               ):
+    def get_perpendicular_line(self, point: 'Point2'):
         """
-        Get the perpendicular line of the line
-        :param point: outside point
-        :return:
+        Get the perpendicular line passing through a specified point.
+
+        Args:
+            point: A Point2 object.
+
+        Returns:
+            Line2: Perpendicular line passing through the specified point.
         """
-        return Line2(
-            a=-self.b,
-            b=self.a,
-            c=self.b * point.x - self.a * point.y
-        )
+        return Line2(a=-self.b, b=self.a, c=self.b * point.x - self.a * point.y)
 
     def is_parallel(self, line: 'Line2') -> bool:
         """
-        Check if two lines are parallel
-        :param line: another line
-        :return: True if parallel
+        Check if two lines are parallel.
+
+        Args:
+            line: Another Line2 object.
+
+        Returns:
+            bool: True if the lines are parallel.
         """
         return self.a * line.b == self.b * line.a
 
 
 class Line3:
-    def __init__(self,
-                 a,
-                 b,
-                 c,
-                 d
-                 ):
+    def __init__(self, a, b, c, d):
+        """
+        Initialize a 3D line.
+
+        Args:
+            a: Coefficient of x in the line equation.
+            b: Coefficient of y in the line equation.
+            c: Coefficient of z in the line equation.
+            d: Constant term in the line equation.
+        """
         self.a = a
         self.b = b
         self.c = c
         self.d = d
 
-    def get_parallel_line(self,
-                          p: 'Point3'
-                          ):
+    def get_parallel_line(self, p: 'Point3'):
+        """
+        Get the parallel line passing through a specified 3D point.
+
+        Args:
+            p: A Point3 object.
+
+        Returns:
+            Line3: Parallel line passing through the specified point.
+        """
         return Line3(self.a, self.b, self.c, self.a * p.x + self.b * p.y + self.c * p.z)
 
 
 class Segment2:
-    def __init__(self,
-                 start: Point2,
-                 end: Point2
-                 ):
+    def __init__(self, start: Point2, end: Point2):
+        """
+        Initialize a 2D line segment.
+
+        Args:
+            start: Start Point2 of the segment.
+            end: End Point2 of the segment.
+        """
         self.start = start
         self.end = end
 
     @property
     def line(self):
         """
-        Get the line of the segment
-        :return: 线段所在的直线
+        Get the Line2 object representing the line of the segment.
+
+        Returns:
+            Line2: Line object representing the segment.
         """
-        return Line2(
-            a=self.end.y - self.start.y,
-            b=self.start.x - self.end.x,
-            c=self.end.x * self.start.y - self.start.x * self.end.y
-        )
+        return Line2(a=self.end.y - self.start.y, b=self.start.x - self.end.x, c=self.end.x * self.start.y - self.start.x * self.end.y)
 
     @property
     def center(self):
         """
-        Get the center of the segment
-        :return: 线段的中点
+        Get the center Point2 of the segment.
+
+        Returns:
+            Point2: Center of the segment.
         """
-        return Point2(
-            (self.start.x + self.end.x) / 2,
-            (self.start.y + self.end.y) / 2
-        )
+        return Point2((self.start.x + self.end.x) / 2, (self.start.y + self.end.y) / 2)
 
     @property
     def length(self):
         """
-        Get the length of the segment
-        :return: 线段的长度
+        Get the length of the segment.
+
+        Returns:
+            T_Num: Length of the segment.
         """
         return ((self.start.x - self.end.x) ** 2 + (self.start.y - self.end.y) ** 2) ** 0.5
 
     @property
     def perpendicular_bisector(self):
         """
-        Get the perpendicular bisector of the segment
-        :return: 线段的中垂线
+        Get the Line2 object representing the perpendicular bisector of the segment.
+
+        Returns:
+            Line2: Perpendicular bisector of the segment.
         """
         return self.line.get_perpendicular_line(self.center)
 
     def is_point_at(self, point: Point2) -> bool:
         """
-        Check if the point is on the segment
-        :param point: another point
-        :return: True if the point is on the segment
+        Check if a point is on the segment.
+
+        Args:
+            point: A Point2 object.
+
+        Returns:
+            bool: True if the point lies on the segment.
         """
         return (self.start.x - point.x) * (self.end.x - point.x) <= 0 and (self.start.y - point.y) * (self.end.y - point.y) <= 0
 
 
 class Arc2:
-    def __init__(self,
-                 center: Point2 | None,
-                 start: Point2,
-                 end: Point2,
-                 direction: int = 1
-                 ):
+    def __init__(self, center: Point2 | None, start: Point2, end: Point2, direction: int = 1):
         """
+        Initialize a 2D arc.
 
-        :param center: 处理特殊情况，如果为None则为直线
-        :param start: 起点向量末端点
-        :param end: 终点向量末端点
-        :param direction: 正数为正角，负数为负角，0为零角，数值绝对值与方向无关
+        Args:
+            center: Center Point2 of the arc. If None, the arc is a straight line.
+            start: Start Point2 of the arc.
+            end: End Point2 of the arc.
+            direction: Positive for positive angles, negative for negative angles, 0 for zero angles (independent of direction).
         """
         self.center = center
         self.radius = center.get_vector2(start).length if center is not None else 0
         self.start = start
         self.end = end
         self.direction = direction
-        # 正负角方向
+        # Ensure positive/negative direction
         if self.direction != 0:
             self.direction = self.direction / abs(self.direction)
 
     def get_delta_angle(self) -> T_Num:
         """
-        获取角度差，包含正负角
-        :return:
+        Get the angular difference, including positive/negative angles.
+
+        Returns:
+            T_Num: Angular difference.
         """
         v1 = self.center.get_vector2(self.start)
         v2 = self.center.get_vector2(self.end)
-        # 要计算正负角
+        # Calculate positive/negative angles
         angle1 = math.atan2(v1.y, v1.x)
         angle2 = math.atan2(v2.y, v2.x)
 
-        # 计算两个角度之间的差值
+        # Calculate angular difference
         delta_angle = angle2 - angle1
 
-        # 根据旋转方向调整差值
+        # Adjust the difference based on rotation direction
         if self.direction > 0:
             if delta_angle < 0:
                 delta_angle += 2 * math.pi
@@ -247,20 +311,53 @@ class Arc2:
                 delta_angle -= 2 * math.pi
         return delta_angle
 
-    def get_pos(self, p: T_Num) -> Point2:
+    def get_points(self, density: T_Num = 0.1) -> List[Point2]:
         """
-        获取当前旋转进度的坐标
-        Get the position of the arc
-        :param p: 0-1
-        :return:
-        """
+        获取沿弧等间隔的坐标，使用numpy。
 
-        # 计算两个角度之间的差值
+        Args:
+            density (T_Num): 点的密度。
+
+        Returns:
+            np.ndarray: Array of coordinates at equal intervals along the arc.
+        """
+        # 生成一个表示进度的数组
+        p = np.linspace(0, 1, int(self.length / density))
+
+        # 计算每个进度的角度
         v1 = self.center.get_vector2(self.start)
         angle1 = math.atan2(v1.y, v1.x)
         delta_angle = self.get_delta_angle()
 
-        # 根据旋转方向调整差值
+        # Adjust the difference based on rotation direction
+        if self.direction > 0:
+            if delta_angle < 0:
+                delta_angle += 2 * math.pi
+        else:
+            if delta_angle > 0:
+                delta_angle -= 2 * math.pi
+
+        # 使用numpy的cos和sin函数批量计算每个进度的坐标
+        x = self.center.x + self.radius * np.cos(angle1 + delta_angle * p)
+        y = self.center.y + self.radius * np.sin(angle1 + delta_angle * p)
+
+        return [Point2(x[i], y[i]) for i in range(len(x))]
+
+    def get_pos(self, p: T_Num) -> Point2:
+        """
+        Get the coordinates at the current rotation progress.
+
+        Args:
+            p: Rotation progress coefficient in the range [0, 1].
+
+        Returns:
+            Point2: Coordinates at the specified rotation progress.
+        """
+        v1 = self.center.get_vector2(self.start)
+        angle1 = math.atan2(v1.y, v1.x)
+        delta_angle = self.get_delta_angle()
+
+        # Adjust the difference based on rotation direction
         if self.direction > 0:
             if delta_angle < 0:
                 delta_angle += 2 * math.pi
@@ -276,18 +373,14 @@ class Arc2:
     @property
     def length(self) -> T_Num:
         """
-        获取弧长
-        Get the length of the arc
-        :return:
-        """
-        v1 = self.center.get_vector2(self.start)
-        # 要计算正负角
-        angle1 = math.atan2(v1.y, v1.x)
+        Get the arc length.
 
-        # 计算两个角度之间的差值
+        Returns:
+            T_Num: Arc length.
+        """
         delta_angle = self.get_delta_angle()
 
-        # 根据旋转方向调整差值
+        # Adjust the difference based on rotation direction
         if self.direction > 0:
             if delta_angle < 0:
                 delta_angle += 2 * math.pi
@@ -299,22 +392,28 @@ class Arc2:
 
     def get_tangent(self, p: T_Num) -> Line2:
         """
-        获取当前进度位置的切线
-        Get the tangent of the arc
-        :param p: 0-1 进度系数，不是点
-        :return:
-        """
+        Get the tangent line at the current progress position.
 
+        Args:
+            p: Progress coefficient (not a point) in the range [0, 1].
+
+        Returns:
+            Line2: Tangent line at the specified rotation progress.
+        """
         point = self.get_pos(p)
         radius_seg = Segment2(self.center, point)
         return radius_seg.line.get_perpendicular_line(point)
 
 
 class Vector2:
-    def __init__(self,
-                 x,
-                 y
-                 ):
+    def __init__(self, x, y):
+        """
+        Initialize a 2D vector.
+
+        Args:
+            x: X-component.
+            y: Y-component.
+        """
         self.x = x
         self.y = y
 
@@ -323,17 +422,23 @@ class Vector2:
 
     def get_angle(self, vector2: 'Vector2') -> T_Num:
         """
-        Get the angle of two vectors
-        :param vector2: another vector
-        :return: angle in radian
+        Get the angle between two vectors.
+
+        Args:
+            vector2: Another Vector2 object.
+
+        Returns:
+            T_Num: Angle in radians.
         """
         return math.acos(self * vector2 / (self.length * vector2.length))
 
     @property
     def length(self):
         """
-        Get the length of the vector
-        :return: length
+        Get the length of the vector.
+
+        Returns:
+            T_Num: Length of the vector.
         """
         return (self.x ** 2 + self.y ** 2) ** 0.5
 
@@ -357,11 +462,7 @@ class Vector2:
 
 
 class Vector3:
-    def __init__(self,
-                 x,
-                 y,
-                 z
-                 ):
+    def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
@@ -369,10 +470,14 @@ class Vector3:
 
 def line2by2p(p1: Point2, p2: Point2) -> Line2:
     """
-    Get the line of two points
-    :param p1:
-    :param p2:
-    :return:
+    Get the Line2 object passing through two points.
+
+    Args:
+        p1: First Point2.
+        p2: Second Point2.
+
+    Returns:
+        Line2: Line object passing through the specified points.
     """
     return Line2(
         a=p2.y - p1.y,
@@ -382,4 +487,15 @@ def line2by2p(p1: Point2, p2: Point2) -> Line2:
 
 
 def clamp(_x: T_Num, _min: T_Num, _max: T_Num) -> T_Num:
+    """
+    Clamp a value within a specified range.
+
+    Args:
+        _x: Value to be clamped.
+        _min: Minimum allowed value.
+        _max: Maximum allowed value.
+
+    Returns:
+        T_Num: Clamped value.
+    """
     return _min if _x < _min else _max if _x > _max else _x

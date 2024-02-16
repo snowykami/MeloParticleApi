@@ -9,6 +9,5 @@ from .particle_line import *
 from .save import *
 from .style import *
 from .utils import *
-
 # 禁用科学计数法
 sys.float_representation = 'decimal'

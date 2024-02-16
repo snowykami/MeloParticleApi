@@ -1,8 +1,13 @@
 # 珍妮机API
 
-### A python api made for [more-particle](https://github.com/BottleSoy/more-particle) mod
+#### A python api made for [more-particle](https://github.com/BottleSoy/more-particle) mod
 
-### 用于更便捷地针对more particle mod进行自定义粒子制作
+#### 用于更便捷地制作Minecraft Java Edition数据包
+
+### 特色
+- 避免手打指令字符串，全部封装成了接口，极大程度上减少了语法错误
+- 基于对more-particle的封装，可以更加方便地进行粒子制作和表达式编写，会自动生成表达式到mcfunction
+- 转换逻辑事件为mcfunction，你无需直接操作mcfunction，只需调用api的方法即可
 
 # 快速上手
 
