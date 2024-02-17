@@ -1,6 +1,9 @@
+# idea
 .idea
-particle
+
+# localresource
 midi
-gcc
-config.yml
-main.py
+temp
+
+# temp_script
+*.py
