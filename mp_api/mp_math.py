@@ -390,19 +390,32 @@ class Arc2:
 
         return self.radius * abs(delta_angle)
 
-    def get_tangent(self, p: T_Num) -> Line2:
+    def get_vector2(self, p: T_Num) -> 'Vector2':
         """
-        Get the tangent line at the current progress position.
+        Get the tangent vector at the current rotation progress.
 
         Args:
-            p: Progress coefficient (not a point) in the range [0, 1].
+            p: Rotation progress coefficient in the range [0, 1].
 
         Returns:
-            Line2: Tangent line at the specified rotation progress.
+            Vector2: Tangent vector at the specified rotation progress.
         """
-        point = self.get_pos(p)
-        radius_seg = Segment2(self.center, point)
-        return radius_seg.line.get_perpendicular_line(point)
+        v1 = self.center.get_vector2(self.start)
+        angle1 = math.atan2(v1.y, v1.x)
+        delta_angle = self.get_delta_angle()
+
+        # Adjust the difference based on rotation direction
+        if self.direction > 0:
+            if delta_angle < 0:
+                delta_angle += 2 * math.pi
+        else:
+            if delta_angle > 0:
+                delta_angle -= 2 * math.pi
+
+        return Vector2(
+            -self.radius * math.sin(angle1 + delta_angle * p),
+            self.radius * math.cos(angle1 + delta_angle * p)
+        )
 
 
 class Vector2:

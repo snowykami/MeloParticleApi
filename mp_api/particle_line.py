@@ -71,19 +71,20 @@ class ParticleLine:
         return (x2 - x1) / (2 * delta), (y2 - y1) / (2 * delta), (z2 - z1) / (2 * delta)
 
 
-def arc22pl(arc: Arc2, y_fun: Callable) -> ParticleLine:
+def arc22pl(arc: Arc2, y_fun: Callable, npt: int = 20) -> ParticleLine:
     """
     将 Arc2 对象转换为用于粒子运动的 ParticleLine。
 
     参数：
     - arc (Arc2): 代表二维空间中弧的 Arc2 对象。
     - y_fun (Callable): 随时间变化定义 Y 坐标的函数。
+    - npt (int): 每tick最大粒子数，超出后用直线代替(可改)。
 
     返回：
     ParticleLine: 代表转换后的弧的 ParticleLine 对象。
     """
     # 如果弧没有中心，创建一条直线
-    if arc.center is None or arc.length / (arc.end.x - arc.start.x) > 40:
+    if arc.center is None or arc.length / (arc.end.x - arc.start.x) > npt:
         return ParticleLine(
             start_time=arc.start.x,
             end_time=arc.end.x,

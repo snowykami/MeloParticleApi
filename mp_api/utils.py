@@ -70,19 +70,18 @@ class Enum:
         colors = [
                 Color('#FFA500'),
                 Color('#FFFF00'),
-                Color('#00FFFF'),
-                Color('#FF0000'),
-                Color('#D3D3D3'),
-                Color('#FF00FF'),
+                Color('#5DADE2'),
+                Color('#2ECC71'),
+                Color('#D7DBDD'),
+                Color('#BB8FCE'),
 
-                Color('#000000'),
-                Color('#0000FF'),
-                Color('#A52A2A'),
-                Color('#808080'),
-                Color('#008000'),
-                Color('#ADD8E6'),
+                Color('#BA4A00'),
+                Color('#B9770E'),
+                Color('#2E86C1'),
+                Color('#239B56'),
+                Color('#909497'),
+                Color('#76448A'),
                 Color('#00FF00'),
-
                 Color('#FFC0CB'),
                 Color('#800080'),
                 Color('#FFFFFF'),
@@ -176,6 +175,7 @@ def mp_radian(x: Any) -> str:
     """
     return f'rad({x})'
 
+
 def mp_and(a, b) -> str:
     """mp_and
     :param a:
@@ -184,6 +184,7 @@ def mp_and(a, b) -> str:
     """
     return f'and({a},{b})'
 
+
 def mp_or(a, b) -> str:
     """mp_or
     :param a:
@@ -191,6 +192,18 @@ def mp_or(a, b) -> str:
     :return:
     """
     return f'or({a},{b})'
+
+
+def mp_rgb(r: Any, g: Any, b: Any) -> str:
+    """mp_rgb
+    :param r:
+    :param g:
+    :param b:
+    :return:
+    """
+    return f'rgb({func2math_exp(r)},{func2math_exp(g)},{func2math_exp(b)})'
+
+
 def mp_sin(x: Any) -> str:
     """mp_sin
     :param x:
@@ -205,3 +218,6 @@ def mp_cos(x: Any) -> str:
     :return:
     """
     return f'cos({x})'
+
+
+mp_t = 't'

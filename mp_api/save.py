@@ -25,7 +25,7 @@ class Save(object):
         self.datapack = datapack
         self.resourcepack = resourcepack
         self.namespace = namespace
-        self.event_count = 0
+
 
         self.function_list: List[MCFunction] = []
 
@@ -36,6 +36,12 @@ class Save(object):
         self.function_list.append(function)
         return function
 
+    def get_function(self, name: str) -> MCFunction:
+        for function in self.function_list:
+            if function.name == name:
+                return function
+        raise ValueError(f'Function {name} not found')
+
     @property
     def game_root(self) -> str:
         return os.path.abspath(os.path.join(self.path, '../..'))
@@ -45,7 +51,7 @@ class Save(object):
         return os.path.join(self.game_root, 'resourcepacks', self.resourcepack)
 
     def output(self, num_threads: int = config.max_thread):
-        event_count, function_count = 0, 0
+        event_count, function_count, sum_event_count = 0, 0, 0
 
         def process_function(mcfunction):
             nonlocal event_count, function_count
@@ -59,7 +65,7 @@ class Save(object):
 
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
             list(tqdm(executor.map(process_function, self.function_list), total=len(self.function_list), desc='mcfunction output', colour='blue', ncols=config.max_ncols))
-        print('Output complete: functions:', function_count, 'events:', event_count, 'time:', round(time.time() - self.time_start, 2), 'sec')
+        print(f'Functions: {function_count}, Events: {event_count}, SumEvents: {sum_event_count}, Time: {time.time() - self.time_start:.2f}s')
 
     def __del__(self):
         self.output()

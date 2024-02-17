@@ -1,5 +1,6 @@
 import sys
 
+from .canvas import *
 from .draw import *
 from .event import *
 from .mp_math import *
