@@ -1,4 +1,5 @@
 import math
+import random
 from typing import Callable, List, Tuple
 
 import numpy as np
@@ -187,7 +188,7 @@ class Struct:
         return points
 
     @staticmethod
-    def sphere(radius: T_Num = 1, density: T_Num = 0.1, padding: str = 'p', anchor: T_Pos = (0, 0, 0)) -> List[Point3]:
+    def sphere_cube(radius: T_Num = 1, density: T_Num = 0.1, padding: str = 'p', anchor: T_Pos = (0, 0, 0)) -> List[Point3]:
         """
         生成球体
         :param anchor: 锚点，0.5为中心，0为左/下/前，1为右/上/后
@@ -210,6 +211,22 @@ class Struct:
                     else:
                         raise ValueError('padding参数错误')
         return points
+
+    @staticmethod
+    def sphere_ave(radius: T_Num, density: T_Num, padding: str = 's'):
+        points = []
+        square = 4 * math.pi * radius ** 2
+        num = square * density
+        for i in range(num):
+            r_temp = radius
+            phi = math.acos(-1 + ((2.0 * i - 1.0) / num))
+            theta = math.sqrt(num * math.pi) * phi
+            x = r_temp * math.cos(theta) * math.sin(phi)
+            y = r_temp * math.sin(theta) * math.sin(phi)
+            z = r_temp * math.cos(phi)
+            points.append(Point3(x, y, z))
+        return points
+
 
 
 class Animation:

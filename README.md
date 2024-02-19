@@ -2,7 +2,7 @@
 
 #### A python api made for [more-particle](https://github.com/BottleSoy/more-particle) mod
 
-#### 用于更便捷地制作Minecraft Java Edition数据包
+#### 这是一个更便捷地制作Minecraft Java Edition数据包的库，更加偏向粒子特效，红石音乐
 
 ### 特色
 - 避免手打指令字符串，全部封装成了接口，极大程度上减少了语法错误

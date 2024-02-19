@@ -20,7 +20,6 @@ class Save(object):
         if not os.path.exists(os.path.join(path, 'level.dat')):
             raise FileNotFoundError('level.dat not found')
         self.time_start = time.time()
-
         self.path = path
         self.datapack = datapack
         self.resourcepack = resourcepack

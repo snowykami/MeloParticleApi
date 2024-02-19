@@ -86,7 +86,7 @@ class Color:
         else:
             return self.argb[1:]
 
-    def gradient_interpolation(self, other: 'Color', p: float) -> 'Color':
+    def gradient_interpolation_rgba(self, other: 'Color', p: float) -> 'Color':
         """Perform linear color interpolation for creating a gradient color.
 
         Args:
@@ -102,6 +102,18 @@ class Color:
                 int(self.g + (other.g - self.g) * p),
                 int(self.b + (other.b - self.b) * p)
         ))
+
+    def gradient_interpolation(self, other: 'Color', p: float) -> 'Color':
+        """Perform linear color interpolation for creating a gradient color.
+
+        Args:
+            other (Color): Another color for interpolation.
+            p (float): Interpolation coefficient in the range [0, 1].
+
+        Returns:
+            Color: Interpolated color.
+        """
+        return self.gradient_interpolation_rgba(other, p)
 
     def __str__(self) -> str:
         """Return a string representation of the Color object."""
