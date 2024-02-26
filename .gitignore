@@ -2,8 +2,12 @@
 .idea
 
 # localresource
+logs
 midi
+scripts_release
+release
 temp
+
 
 # temp_script
 *.py

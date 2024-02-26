@@ -1,12 +1,15 @@
-import logging
+from loguru import logger
 
 # logger
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = "INFO"
 LOG_FOLDER = "logs"
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+LOG_FORMAT = ("<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+              "<level>{level}</level> | "
+              "<cyan>{name}</cyan>.<blue>{function}</blue>:     "
+              "<level>{message}</level>")
 
 # multi_threading
-THREAD_COUNT = 16
+THREAD_NUM = 16
 
 # tqdm
 TQDM_NCOLS = 100
