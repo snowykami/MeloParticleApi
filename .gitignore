@@ -11,3 +11,4 @@ temp
 
 # temp_script
 *.py
+**/*.pyc
