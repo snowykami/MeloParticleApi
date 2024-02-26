@@ -1,4 +1,4 @@
-from .typing import T_Num
+from mp_api.typing import T_Num
 
 
 class Point2:
