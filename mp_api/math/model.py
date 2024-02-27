@@ -51,7 +51,7 @@ class PointModel:
             for x in [0, length]:
                 for y in [0, length]:
                     for z in [0, length]:
-                        points.append(Point3(x, y, z))
+                        points.append(Point3(x + dx, y + dy, z + dz))
 
         elif mode == ModeEnum.LINE:
             for i in points_per_side:
@@ -73,7 +73,7 @@ class PointModel:
             for x in points_per_side:
                 for y in points_per_side:
                     for z in points_per_side:
-                        points.append(Point3(x, y, z))
+                        points.append(Point3(x + dx, y + dy, z + dz))
 
         else:
             raise ValueError(f"不支持的模式: {mode}")
